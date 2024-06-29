@@ -1,0 +1,32 @@
+{
+  "name": "web-crawler-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "npx nodemon src/index.ts",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shubhamsinha2512/web-crawler-backend.git"
+  },
+  "author": "Shubham Sinha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shubhamsinha2512/web-crawler-backend/issues"
+  },
+  "homepage": "https://github.com/shubhamsinha2512/web-crawler-backend#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
+  }
+}
