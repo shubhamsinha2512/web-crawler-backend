@@ -1,3 +1,4 @@
+import { QueryTypes } from "sequelize";
 import { IClient, IClientDto } from "../common/interfaces/IClient";
 import Client from "../models/ClientModel";
 
@@ -65,6 +66,16 @@ class ClientRepository {
             const updateRows = await Client.destroy({ where: { id: id } });
 
             return Promise.resolve(updateRows);
+        } catch (exception) {
+            return Promise.reject(exception);
+        }
+    }
+
+    public async runQuery(query: string): Promise<any> {
+        try {
+            console.info(`DB Call:: Run Query: ${query}`);
+            const result = await Client.sequelize?.query(query, { type: QueryTypes.SELECT });
+            return Promise.resolve(result);
         } catch (exception) {
             return Promise.reject(exception);
         }

@@ -15,8 +15,15 @@ class ClientService {
 
     public async getClients(query: any): Promise<IClientDto | IClientDto[]> {
         try {
-            let foundClients: IClientDto | IClientDto[] = {} as IClientDto | IClientDto[];
-            const clients = await clientRepository.getClients(query);
+            let clients: IClient[] = [] as IClient[];
+
+            if (!utils.isEmpty(query.q)) {
+                // Free Text Search
+                const SQLQuery = `SELECT * FROM clients where MATCH(name, email, cin, pin) AGAINST('${query.q}*' IN BOOLEAN MODE)`;
+                clients = await clientRepository.runQuery(SQLQuery);
+            } else {
+                clients = await clientRepository.getClients(query);
+            }
 
             return Promise.resolve(clients);
         } catch (exception) {
@@ -27,7 +34,6 @@ class ClientService {
     public async getClientById(id: number): Promise<IClientDto> {
         try {
             const query = { id: id };
-
             const clients = await clientRepository.getClients(query);
             let foundClient: IClientDto = clients?.[0] || {} as IClientDto;
 
