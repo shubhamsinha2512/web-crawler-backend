@@ -1,4 +1,5 @@
 import { IClient, IClientDto } from "../common/interfaces/IClient";
+import { EntityToDtoSerializer } from "../common/serializer/EntityToDtoSerialier";
 import { utils } from "../common/utils/utils";
 import { clientRepository } from "../repositories/ClientRepository";
 
@@ -19,13 +20,17 @@ class ClientService {
 
             if (!utils.isEmpty(query.q)) {
                 // Free Text Search
-                const SQLQuery = `SELECT * FROM clients where MATCH(name, email, cin, pin) AGAINST('${query.q}*' IN BOOLEAN MODE)`;
+                const searchTerm = query.q;
+
+                const SQLQuery = `SELECT MATCH(name, email, cin, pin, address) AGAINST('*${searchTerm}*' IN BOOLEAN MODE) as score, clients.* 
+                    FROM clients WHERE MATCH(name, email, cin, pin, address) AGAINST('*${searchTerm}*' IN BOOLEAN MODE) ORDER BY score DESC;`;
                 clients = await clientRepository.runQuery(SQLQuery);
             } else {
                 clients = await clientRepository.getClients(query);
             }
 
-            return Promise.resolve(clients);
+            const clientsDto: IClientDto[] = EntityToDtoSerializer.serializeMultipleClientEntityToDto(clients);
+            return Promise.resolve(clientsDto);
         } catch (exception) {
             return Promise.reject(exception);
         }
@@ -34,8 +39,8 @@ class ClientService {
     public async getClientById(id: number): Promise<IClientDto> {
         try {
             const query = { id: id };
-            const clients = await clientRepository.getClients(query);
-            let foundClient: IClientDto = clients?.[0] || {} as IClientDto;
+            const clients: IClient[] = await clientRepository.getClients(query);
+            let foundClient: IClientDto = !utils.isEmpty(clients?.[0]) ? EntityToDtoSerializer.serializeClientEntityToDto(clients?.[0]) : {} as IClientDto;
 
             return Promise.resolve(foundClient);
         } catch (exception) {
@@ -47,16 +52,19 @@ class ClientService {
     public async saveClient(clientsData: IClientDto | IClientDto[]): Promise<IClientDto | IClientDto[]> {
         try {
             const clients: IClientDto[] = [] as IClientDto[];
-            let savedClients: IClientDto | IClientDto[] = {} as IClientDto | IClientDto[];
+            let savedClients: IClient | IClient[] = {} as IClient | IClient[];
+            let savedClientsDto: IClientDto | IClientDto[] = {} as IClientDto | IClientDto[];
 
             if (Array.isArray(clientsData)) {
                 clients.push(...clientsData);
                 savedClients = await clientRepository.saveClientBulk(clients);
+                savedClientsDto = EntityToDtoSerializer.serializeMultipleClientEntityToDto(savedClients);
             } else {
                 savedClients = await clientRepository.saveClient(clientsData);
+                savedClientsDto = EntityToDtoSerializer.serializeClientEntityToDto(savedClients);
             }
 
-            return Promise.resolve(savedClients);
+            return Promise.resolve(savedClientsDto);
         } catch (exception) {
             return Promise.reject(exception);
         }
@@ -97,7 +105,6 @@ class ClientService {
 
     public async deleteClient(id: number): Promise<any> {
         try {
-            const query = { id: id };
             const deletedRows = await clientRepository.delteClient(id);
             return Promise.resolve(deletedRows);
         } catch (exception) {

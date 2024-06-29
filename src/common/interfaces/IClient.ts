@@ -1,5 +1,6 @@
 export interface IClient {
     id: number;
+    score?: number;
     name: string;
     email: string;
     cin: string;
@@ -9,6 +10,7 @@ export interface IClient {
 
 export interface IClientDto {
     id: number;
+    score?: number;
     name: string;
     email: string;
     cin: string;
