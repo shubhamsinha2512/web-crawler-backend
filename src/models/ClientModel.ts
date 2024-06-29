@@ -45,11 +45,13 @@ Client.init({
     },
     address: {
         type: new DataTypes.STRING(256),
-        allowNull: false
+        allowNull: true
     }
 }, {
     sequelize,
     tableName: 'clients'
 });
+
+Client.sync({ alter: true });
 
 export default Client;
