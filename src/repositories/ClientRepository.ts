@@ -71,10 +71,17 @@ class ClientRepository {
         }
     }
 
-    public async runQuery(query: string): Promise<any> {
+    public async runQuery(query: string, select: boolean = true): Promise<any> {
         try {
             console.info(`DB Call:: Run Query: ${query}`);
-            const result = await Client.sequelize?.query(query, { type: QueryTypes.SELECT });
+            const options: any = {};
+
+            if (select) {
+                options.type = QueryTypes.SELECT
+            }
+
+            const result = await Client.sequelize?.query(query, options);
+
             return Promise.resolve(result);
         } catch (exception) {
             return Promise.reject(exception);

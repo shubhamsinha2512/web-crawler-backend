@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import { ClientRoutes } from "./ClientRoutes";
+import { CrawlRoutes } from "./CrawlRoutes ";
 
 class Routes {
 
@@ -14,10 +15,12 @@ class Routes {
 
     public router: Router = Router();
     public clientRoutes: ClientRoutes;
+    public crawlRoutes: CrawlRoutes;
     private baseRoute = "/v1";
     private constructor(app: Router) {
 
         this.clientRoutes = ClientRoutes.getInstance();
+        this.crawlRoutes = CrawlRoutes.getInstance();
         this.index(app);
     }
 
@@ -36,6 +39,7 @@ class Routes {
 
     private initClientRoutes(app: Router): void {
         app.use(`${this.baseRoute}`, this.clientRoutes.router);
+        app.use(`${this.baseRoute}`, this.crawlRoutes.router);
     }
 }
 

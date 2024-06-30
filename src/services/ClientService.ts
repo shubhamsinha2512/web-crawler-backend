@@ -1,10 +1,18 @@
 import { IClient, IClientDto } from "../common/interfaces/IClient";
 import { EntityToDtoSerializer } from "../common/serializer/EntityToDtoSerialier";
 import { utils } from "../common/utils/utils";
+import Client from "../models/ClientModel";
 import { clientRepository } from "../repositories/ClientRepository";
 
 class ClientService {
-    private constructor() { }
+    private constructor() {
+        Client.sync({ alter: true })
+            .then(() => {
+                console.log('Client table created')
+                this.createClientFreeTextIndex()
+                    .then(() => console.log(`Created ${ClientService.FULL_TEXT_INDEX_NAME} index`))
+            });
+    }
     private static instance: ClientService;
 
     public static getInstance(): ClientService {
@@ -14,16 +22,35 @@ class ClientService {
         return ClientService.instance;
     }
 
+    public static FULL_TEXT_INDEX_NAME: string = 'full_text_idx';
+    public static FIELD_MAP: any = {
+        "name": "CompanyName",
+        "Roc": "RoC",
+        "companyStatus": "CompanyStatus",
+        "companyActivity": "CompanyActivity",
+        "cin": "CIN",
+        "registrationDate": "RegistrationDate",
+        "category": "Category",
+        "subCategory": "SubCategory",
+        "companyClass": "CompanyClass",
+        "state": "State",
+        "pin": "PINCode",
+        "country": "Country",
+        "address": "Address",
+        "email": "Email",
+    }
+
     public async getClients(query: any): Promise<IClientDto | IClientDto[]> {
         try {
             let clients: IClient[] = [] as IClient[];
+            const columns = Object.keys(ClientService.FIELD_MAP).join(', ');
 
             if (!utils.isEmpty(query.q)) {
                 // Free Text Search
                 const searchTerm = query.q;
 
-                const SQLQuery = `SELECT MATCH(name, email, cin, pin, address) AGAINST('*${searchTerm}*' IN BOOLEAN MODE) as score, clients.* 
-                    FROM clients WHERE MATCH(name, email, cin, pin, address) AGAINST('*${searchTerm}*' IN BOOLEAN MODE) ORDER BY score DESC;`;
+                const SQLQuery = `SELECT MATCH(${columns}) AGAINST('*${searchTerm}*' IN BOOLEAN MODE) as score, clients.* 
+                    FROM clients WHERE MATCH(${columns}) AGAINST('*${searchTerm}*' IN BOOLEAN MODE) ORDER BY score DESC;`;
                 clients = await clientRepository.runQuery(SQLQuery);
             } else {
                 clients = await clientRepository.getClients(query);
@@ -107,6 +134,37 @@ class ClientService {
         try {
             const deletedRows = await clientRepository.delteClient(id);
             return Promise.resolve(deletedRows);
+        } catch (exception) {
+            return Promise.reject(exception);
+        }
+    }
+
+    public async truncateOldDate(): Promise<void> {
+        try {
+            console.warn('Truncating Old Clients Data');
+
+            const indexQuery = `TRUNCATE TABLE clients;`;
+            await clientRepository.runQuery(indexQuery, false);
+
+        } catch (exception) {
+            return Promise.reject(exception);
+        }
+    }
+
+    public async createClientFreeTextIndex(): Promise<void> {
+        try {
+            const columns = Object.keys(ClientService.FIELD_MAP).join(', ');
+            const indexQuery = `SHOW INDEX FROM clients;`;
+            const foundIndexes = await clientRepository.runQuery(indexQuery);
+            const FullTextIndexs = foundIndexes.filter((index: any) => index.Key_name === ClientService.FULL_TEXT_INDEX_NAME);
+
+            if (!utils.isEmpty(FullTextIndexs)) {
+                const query = `ALTER TABLE clients DROP INDEX ${ClientService.FULL_TEXT_INDEX_NAME}, ADD FULLTEXT ${ClientService.FULL_TEXT_INDEX_NAME} (${columns})`;
+                await clientRepository.runQuery(query, false);
+            } else {
+                const query = `CREATE FULLTEXT INDEX full_text_idx ON clients(${columns});`;
+                await clientRepository.runQuery(query, false);
+            }
         } catch (exception) {
             return Promise.reject(exception);
         }

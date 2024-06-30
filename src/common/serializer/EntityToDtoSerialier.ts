@@ -7,10 +7,20 @@ export class EntityToDtoSerializer {
             id: client.id,
             score: client.score ? Number((client.score)?.toFixed(4)) : undefined,
             name: client.name,
-            email: client.email,
+            Roc: client.Roc,
+            companyStatus: client.companyStatus,
+            companyActivity: client.companyActivity,
             cin: client.cin,
+            registrationDate: client.registrationDate,
+            category: client.category,
+            subCategory: client.subCategory,
+            companyClass: client.companyClass,
+            email: client.email,
+            state: client.state,
             pin: client.pin,
-            address: client.address
+            country: client.country,
+            address: client.address,
+            link: client.link,
         };
 
         return clientDto;;

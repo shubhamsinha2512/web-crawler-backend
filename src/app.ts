@@ -1,6 +1,7 @@
 'use strict';
 
 import express from 'express';
+import cors from 'cors';
 import { Routes } from './routes/Routes';
 import { responseMiddleware } from './middlewares/ResponseMiddleware';
 
@@ -41,6 +42,13 @@ export class App {
         }));
     }
 
+    private enableCORS(): void {
+        this.app.use(cors({
+            exposedHeaders: ["X-Total-Count", "Content-Type"],
+            origin: "*",
+        }));
+    }
+
     private initRoutes(): void {
 
         const routes = Routes.getInstance(this.app);
@@ -52,6 +60,7 @@ export class App {
     }
 
     private bootstrap(): void {
+        this.enableCORS();
         this.initBodyParser();
         this.initRoutes();
         this.sendResponse();
