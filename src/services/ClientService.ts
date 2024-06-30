@@ -114,27 +114,7 @@ class ClientService {
     public async updateClient(id: number, clientData: IClientDto): Promise<IClientDto> {
         try {
             const query = { id: id };
-            const updates: any = {};
-
-            if (!utils.isEmpty(clientData.name)) {
-                updates.name = clientData.name;
-            }
-
-            if (!utils.isEmpty(clientData.email)) {
-                updates.email = clientData.email;
-            }
-
-            if (!utils.isEmpty(clientData.cin)) {
-                updates.cin = clientData.cin;
-            }
-
-            if (!utils.isEmpty(clientData.pin)) {
-                updates.pin = clientData.pin;
-            }
-
-            if (!utils.isEmpty(clientData.address)) {
-                updates.address = clientData.address;
-            }
+            const updates: any = { ...clientData };
 
             const updatedClient: IClient = await clientRepository.updateClient(query, updates);
             const foundUpdatedClinet: IClient = await this.getClientById(id) as IClient;
