@@ -70,5 +70,14 @@ export class ClientRoutes {
                 next({ isSuccess: false, data: exception, statusCode: 500 });
             }
         })
+
+        this.router.get('/clients-sync', async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                const response = await clientService.syncSqlDBToElastic();
+                next({ isSuccess: true, data: response, statusCode: 201 });
+            } catch (exception) {
+                next({ isSuccess: false, data: exception, statusCode: 500 });
+            }
+        })
     }
 }

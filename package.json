@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/shubhamsinha2512/web-crawler-backend#readme",
   "dependencies": {
+    "@elastic/elasticsearch": "^8.13.1",
+    "@types/elasticsearch": "^5.0.43",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
     "cheerio": "^1.0.0-rc.12",
