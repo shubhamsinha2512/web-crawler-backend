@@ -48,13 +48,12 @@ class ClientRepository {
         }
     }
 
-    public async updateClient(query: any, updates: any): Promise<IClient> {
+    public async updateClient(query: any, updates: any): Promise<any> {
         try {
             console.info(`DB Call:: Update client query: ${JSON.stringify(query)} updates: ${JSON.stringify(updates)}`);
             const updateRows = await Client.update(updates, { where: query, returning: true });
-            const updatedClient: IClient = await Client.findAll({ where: query }) as unknown as IClient;
 
-            return Promise.resolve(updatedClient);
+            return Promise.resolve(updateRows);
         } catch (exception) {
             return Promise.reject(exception);
         }

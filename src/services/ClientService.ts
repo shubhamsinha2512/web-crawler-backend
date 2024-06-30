@@ -123,8 +123,10 @@ class ClientService {
             }
 
             const updatedClient: IClient = await clientRepository.updateClient(query, updates);
+            const foundUpdatedClinet: IClient = await this.getClientById(id) as IClient;
+            const foundUpdatedClinetDto: IClientDto = EntityToDtoSerializer.serializeClientEntityToDto(foundUpdatedClinet);
 
-            return Promise.resolve(updatedClient);
+            return Promise.resolve(foundUpdatedClinetDto);
         } catch (exception) {
             return Promise.reject(exception);
         }
