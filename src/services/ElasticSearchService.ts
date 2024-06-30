@@ -79,16 +79,15 @@ class ElasticSearchService {
         }
     }
 
-    async freeTextSearch(indexName: string, text: string, fields: string[]) {
+    async freeTextSearch(indexName: string, searchTerm: string, fields: string[]) {
         try {
             const foundDocuments = await ElasticSearchService.elasticClient.search({
                 index: indexName,
                 body: {
                     query: {
-                        multi_match: {
-                            query: text,
-                            fields: fields,
-                        },
+                        query_string: {
+                            query: `*${searchTerm}*`
+                        }
                     },
                 },
             });
