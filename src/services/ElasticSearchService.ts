@@ -116,15 +116,11 @@ class ElasticSearchService {
         }
     }
 
-    public async deleteDocuments(indexName: string, query: any) {
+    public async deleteDocuments(indexName: string, id: any) {
         try {
-            const response = await ElasticSearchService.elasticClient.deleteByQuery({
+            const response = await ElasticSearchService.elasticClient.delete({
                 index: indexName,
-                body: {
-                    query: {
-                        match_all: query,
-                    }
-                },
+                id: id,
             });
 
             return Promise.resolve(response);

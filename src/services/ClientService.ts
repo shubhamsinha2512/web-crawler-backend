@@ -132,7 +132,7 @@ class ClientService {
             const deletedRows = await clientRepository.delteClient(id);
             await elasticSearchService.deleteDocuments(ClientService.ELASTIC_CLIENT_INDEX, id.toString());
 
-            return Promise.resolve(deletedRows);
+            return Promise.resolve(id);
         } catch (exception) {
             return Promise.reject(exception);
         }

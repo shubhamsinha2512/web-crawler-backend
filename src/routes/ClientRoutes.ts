@@ -65,7 +65,7 @@ export class ClientRoutes {
                 const id = Number(req?.params?.id);
                 const updates = req.body;
                 const response = await clientService.deleteClient(id);
-                next({ isSuccess: true, data: response, statusCode: 204 });
+                next({ isSuccess: true, data: response, statusCode: 200 });
             } catch (exception) {
                 next({ isSuccess: false, data: exception, statusCode: 500 });
             }
